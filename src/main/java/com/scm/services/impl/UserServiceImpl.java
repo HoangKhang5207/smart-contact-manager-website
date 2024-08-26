@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 
 import com.scm.entities.User;
 import com.scm.helpers.AppConstants;
+import com.scm.helpers.Helper;
 import com.scm.helpers.ResourceNotFoundException;
 import com.scm.repositories.UserRepository;
+import com.scm.services.EmailService;
 import com.scm.services.UserService;
 
 @Service
@@ -20,12 +22,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @Override
@@ -40,7 +44,16 @@ public class UserServiceImpl implements UserService {
         // set the user roles
         user.setRoleList(List.of(AppConstants.ROLE_USER));
 
-        return userRepository.save(user);
+        // Verify User Account by sending the email
+        String emailToken = UUID.randomUUID().toString();
+        user.setEmailToken(emailToken);
+
+        User savedUser = userRepository.save(user);
+
+        String emailLink = Helper.getLinkForEmailVerification(emailToken);
+        emailService.sendEmail(savedUser.getEmail(), "Verify Account: Smart Contact Manager", emailLink);
+    
+        return savedUser;
     }
 
     @Override

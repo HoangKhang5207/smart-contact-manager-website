@@ -9,17 +9,9 @@ public class FileValidator implements ConstraintValidator<ValidFile, MultipartFi
 
     private static final long MAX_FILE_SIZE = 1024 * 1024 * 2; // 2MB
 
-    // type
-
-    // height
-
-    // width
-
     @Override
     public boolean isValid(MultipartFile file, ConstraintValidatorContext context) {
         if (file == null || file.isEmpty()) {
-            // context.disableDefaultConstraintViolation();
-            // context.buildConstraintViolationWithTemplate("File can not empty.").addConstraintViolation();
             return true;
         }
 
@@ -30,9 +22,6 @@ public class FileValidator implements ConstraintValidator<ValidFile, MultipartFi
             return false;
         }
 
-        // resolution
-
-        // extension
         return true;
     }
 
